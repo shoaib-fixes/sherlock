@@ -3,7 +3,7 @@ charset-normalizer==3.4.0
 click==8.3.1
 colorama==0.4.6
 idna==3.10
-joblib==1.4.2
+joblib==1.5.2
 nltk==3.9.2
 python-dotenv==1.2.1
 pytz==2025.2
