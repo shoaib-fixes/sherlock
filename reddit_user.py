@@ -3,10 +3,10 @@ import datetime
 import re
 import json
 import calendar
+import logging
 from collections import Counter
 from itertools import groupby
 from urllib.parse import urlparse, urlunparse
-from requests.auth import HTTPBasicAuth
 import os
 from dotenv import load_dotenv
 
@@ -15,6 +15,10 @@ import pytz
 
 from subreddits import subreddits_dict, ignore_text_subs, default_subs
 from text_parser import TextParser
+from reddit_auth import RedditAuthenticator, AuthenticationError, RateLimitError
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -198,15 +202,21 @@ class RedditUser:
         self.username = username
         self.comments = []
         self.submissions = []
+        self.authenticator = RedditAuthenticator()
+
+        logger.info(f"Initializing RedditUser for username: {username}")
 
         if not json_data:
-            self.access_token = self.get_access_token()
+            logger.info(f"Fetching fresh data for user: {username}")
             self.about = self.get_about()
             if not self.about:
+                logger.warning(f"User '{username}' not found")
                 raise UserNotFoundError
             self.comments = self.get_comments()
             self.submissions = self.get_submissions()
+            logger.info(f"Successfully loaded {len(self.comments)} comments and {len(self.submissions)} submissions for user: {username}")
         else:
+            logger.info(f"Loading cached data for user: {username}")
             data = json.loads(json_data)
             self.about = {
                 "created_utc" : datetime.datetime.fromtimestamp(
@@ -370,27 +380,37 @@ class RedditUser:
 
         self.process()
 
-    def get_access_token(self):
-        data = {'grant_type': 'client_credentials'}
-        auth = HTTPBasicAuth(
-            os.environ.get('REDDIT_CLIENT_ID'),
-            os.environ.get('REDDIT_SECRET')
-        )
-        headers = {'User-Agent': os.environ.get('REDDIT_USER_AGENT')}
-        response = requests.post('https://www.reddit.com/api/v1/access_token', auth=auth, data=data, headers=headers)
-        token = response.json().get('access_token')
-        return token
-
     def make_request(self, endpoint, params=None):
-        headers = {
-            'Authorization': f'bearer {self.access_token}',
-            'User-Agent': os.environ.get('REDDIT_USER_AGENT')
-        }
-        response = requests.get(f'https://oauth.reddit.com{endpoint}', headers=headers, params=params)
-        return response.json()
+        """
+        Make an authenticated request to the Reddit API.
+
+        Args:
+            endpoint (str): API endpoint
+            params (dict, optional): Query parameters
+
+        Returns:
+            dict: JSON response data
+
+        Raises:
+            AuthenticationError: If authentication fails
+            RateLimitError: If rate limit is exceeded
+            UserNotFoundError: If the requested user doesn't exist
+        """
+        try:
+            return self.authenticator.make_request(endpoint, params)
+        except AuthenticationError:
+            raise
+        except RateLimitError:
+            raise
+        except requests.exceptions.RequestException as e:
+            # Check if this is a 404 (user not found)
+            if hasattr(e.response, 'status_code') and e.response.status_code == 404:
+                raise UserNotFoundError(f"User '{self.username}' not found")
+            raise
 
     def get_about(self):
         endpoint = f'/user/{self.username}/about'
+        logger.debug(f"Fetching user about data for: {self.username}")
         data = self.make_request(endpoint)
         if 'data' in data:
             icon_img_url = data['data'].get('icon_img', '')
@@ -416,6 +436,8 @@ class RedditUser:
         endpoint = f'/user/{self.username}/comments/.json?limit=100'
         comments = []
         after = None
+
+        logger.debug(f"Fetching comments for user: {self.username}")
 
         while True:
             params = {'after': after} if after else {}
@@ -445,12 +467,15 @@ class RedditUser:
             else:
                 break
 
+        logger.debug(f"Fetched {len(comments)} comments for user: {self.username}")
         return comments
 
     def get_submissions(self):
         endpoint = f'/user/{self.username}/submitted/.json?limit=100'
         submissions = []
         after = None
+
+        logger.debug(f"Fetching submissions for user: {self.username}")
 
         while True:
             params = {'after': after} if after else {}
@@ -481,6 +506,7 @@ class RedditUser:
             else:
                 break
 
+        logger.debug(f"Fetched {len(submissions)} submissions for user: {self.username}")
         return submissions
 
     def process(self):

@@ -11,4 +11,4 @@ regex==2025.11.3
 requests==2.32.4
 textblob==0.19.0
 tqdm==4.67.1
-urllib3==2.2.3
+urllib3==2.5.0
