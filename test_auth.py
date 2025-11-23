@@ -51,6 +51,15 @@ def test_authentication():
 
     return True
 
+def mask_secret(secret):
+    """Mask a secret for logging (show only first 2 and last 2 characters, if length > 6)."""
+    if not secret:
+        return "<not set>"
+    secret_str = str(secret)
+    if len(secret_str) <= 6:
+        return "*" * len(secret_str)
+    return f"{secret_str[:2]}{'*' * (len(secret_str)-4)}{secret_str[-2:]}"
+
 if __name__ == "__main__":
     # Check if environment variables are set to non-placeholder values
     client_id = os.environ.get('REDDIT_CLIENT_ID')
@@ -61,7 +70,7 @@ if __name__ == "__main__":
         print("   Get credentials from: https://www.reddit.com/prefs/apps")
         print("   Current values:")
         print(f"   REDDIT_CLIENT_ID: {client_id}")
-        print(f"   REDDIT_SECRET: {client_secret}")
+        print(f"   REDDIT_SECRET: {mask_secret(client_secret)}")
         exit(1)
 
     print("[OK] Environment variables loaded successfully")
