@@ -9,6 +9,6 @@ python-dotenv==1.2.2
 pytz==2026.1.post1
 regex==2026.4.4
 requests==2.32.5
-textblob==0.19.0
+textblob==0.20.0
 tqdm==4.67.3
 urllib3==2.6.3
