@@ -7,7 +7,7 @@ joblib==1.5.3
 nltk==3.9.4
 python-dotenv==1.2.2
 pytz==2026.1.post1
-requests==2.33.0
+requests==2.34.2
 regex==2026.4.4
 textblob==0.20.0
 tqdm==4.67.3
