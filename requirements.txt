@@ -6,7 +6,7 @@ idna==3.17
 joblib==1.5.3
 nltk==3.9.4
 python-dotenv==1.2.2
-pytz==2026.1.post1
+pytz==2026.2
 requests==2.34.2
 regex==2026.5.9
 textblob==0.20.0
