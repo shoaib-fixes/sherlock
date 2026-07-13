@@ -1,5 +1,5 @@
 certifi==2026.6.17
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
 click==8.4.1
 colorama==0.4.6
 idna==3.18
