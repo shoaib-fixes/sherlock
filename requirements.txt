@@ -4,7 +4,7 @@ click==8.4.1
 colorama==0.4.6
 idna==3.18
 joblib==1.5.3
-nltk==3.9.4
+nltk==3.10.2
 python-dotenv==1.2.2
 pytz==2026.2
 requests==2.34.2
