@@ -10,5 +10,5 @@ pytz==2026.2
 requests==2.34.2
 regex==2026.5.9
 textblob==0.20.0
-tqdm==4.68.3
+tqdm==4.70.0
 urllib3==2.7.0
