@@ -1,6 +1,6 @@
 charset-normalizer==3.5.1
 certifi==2026.7.22
-click==8.4.2
+click==8.5.0
 colorama==0.4.6
 idna==3.19
 joblib==1.5.3
