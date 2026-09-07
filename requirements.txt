@@ -8,7 +8,7 @@ nltk==3.10.3
 python-dotenv==1.2.3
 pytz==2026.3.post1
 requests==2.34.2
-regex==2026.7.19
+regex==2026.9.3
 textblob==0.20.1
 tqdm==4.70.0
 urllib3==2.7.0
