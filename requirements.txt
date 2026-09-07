@@ -3,7 +3,7 @@ certifi==2026.7.22
 click==8.5.0
 colorama==0.4.6
 idna==3.19
-joblib==1.5.3
+joblib==1.6.0
 nltk==3.10.3
 python-dotenv==1.2.3
 pytz==2026.3.post1
